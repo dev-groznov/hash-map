@@ -19,10 +19,11 @@ export class HashMap {
 
     set(key, value) {
         const hashKey = this.hash(key)
+
         if (this.nodes[hashKey].length !== 0) {
-            for(let item of this.nodes[hashKey]) {
-                if (item['key'] === key) {
-                    item['key'] = value
+            for(let bucket of this.nodes[hashKey]) {
+                if (bucket['key'] === key) {
+                    bucket['key'] = value
                 }
             }
         } else {
@@ -32,6 +33,8 @@ export class HashMap {
                 value,
             })
         }
+
+        if ()
     }
 
     get(key) {
@@ -39,13 +42,91 @@ export class HashMap {
         let res
 
         if (this.nodes[hashKey].length !== 0) {
-            for(let item of this.nodes[hashKey]) {
-                if (item['key'] === key) {
-                    res = item['value']
+            for(let bucket of this.nodes[hashKey]) {
+                if (bucket['key'] === key) {
+                    res = bucket['value']
                 }
             }
         }
         
+        return res
+    }
+
+    has(key) {
+        const hashKey = this.hash(key)
+
+        for(let bucket of this.nodes[hashKey]) {
+            if (bucket['key'] === key) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    remove(key) {
+        const hashKey = this.hash(key)
+
+        for(let i = 0; i < this.nodes[hashKey].length; i++) {
+            if (this.nodes[hashKey][i]['key'] === key) {
+                this.nodes[hashKey].shift(i)
+                return true
+            }
+        }
+
+        return false
+    }
+
+    length() {
+        let cnt = 0
+
+        for(let bucket of this.nodes) {
+            for (let node of bucket) {
+                cnt += 1
+            }
+        }
+
+        return cnt
+    }
+
+    clear() {
+        this.nodes = this.nodes = Array.from({ length: 16 }, () => [])
+    }
+
+
+    keys() {
+        const res = []
+        
+        for(let bucket of this.nodes) {
+            for (let node of bucket) {
+                res.push(node['key'])
+            }
+        }
+
+        return res
+    }
+
+    values() {
+        const res = []
+        
+        for(let bucket of this.nodes) {
+            for (let node of bucket) {
+                res.push(node['value'])
+            }
+        }
+
+        return res
+    }
+
+    entries() {
+        const res = []
+        
+        for(let bucket of this.nodes) {
+            for (let node of bucket) {
+                res.push([node['key'], node['value']])
+            }
+        }
+
         return res
     }
 }

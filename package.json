@@ -1,0 +1,23 @@
+{
+  "name": "hash-map",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/dev-groznov/hash-map#readme",
+  "bugs": {
+    "url": "https://github.com/dev-groznov/hash-map/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dev-groznov/hash-map.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "jest": "^30.5.2"
+  }
+}

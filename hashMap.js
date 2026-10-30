@@ -1,32 +1,61 @@
 export class HashMap {
     constructor() {
-        this.loadFactor = 0.75;
-        this.capacity = 16;
+        this.loadFactor = 0.75
+        this.capacity = 16
         this.nodes = Array.from({ length: 16 }, () => [])
+        this.size = 0
     }
 
-    hash(key) {
-        let hashCode = 0;
+    #checkBounds(hashKey) {
+        if (hashKey < 0 || hashKey >= this.nodes.capacity) {
+            throw new Error("Trying to access hashKey out of bounds");
+        }
+    }
 
-        const primeNumber = 31;
+    #hash(key) {
+        let hashCode = 0
+
+        const primeNumber = 31
         for (let i = 0; i < key.length; i++) {
             hashCode = primeNumber * hashCode + key.charCodeAt(i)
-            hashCode %= this.capacity
+            hashCode &= (this.capacity - 1)
         }
 
         return hashCode;
     } 
 
-    set(key, value) {
-        const hashKey = this.hash(key)
+    #resize() {
+        this.capacity *= 2
+        const newNodes = Array.from({ length: this.capacity }, () => [])
 
-        if (this.nodes[hashKey].length !== 0) {
+        for(let bucket of this.nodes) {
+            for (let node of bucket) {
+                const newHash = this.#hash(node.key)
+                this.#checkBounds(newHash);
+
+                newNodes[newHash].push({
+                    'hashKey': newHash, 
+                    'key': node.key, 
+                    'value': node.value,
+                })
+            }
+        }
+
+        this.nodes = newNodes
+    }
+
+    set(key, value) {
+        const hashKey = this.#hash(key)
+        this.#checkBounds(hashKey);
+
+        if (this.has(key)) {
             for(let bucket of this.nodes[hashKey]) {
                 if (bucket['key'] === key) {
-                    bucket['key'] = value
+                    bucket['value'] = value
                 }
             }
         } else {
+            this.size += 1
             this.nodes[hashKey].push({
                 hashKey, 
                 key, 
@@ -34,11 +63,14 @@ export class HashMap {
             })
         }
 
-        if ()
+        if (this.size > this.capacity * this.loadFactor) {
+            this.#resize()
+        }
     }
 
     get(key) {
-        const hashKey = this.hash(key)
+        const hashKey = this.#hash(key)
+        this.#checkBounds(hashKey);
         let res
 
         if (this.nodes[hashKey].length !== 0) {
@@ -53,7 +85,8 @@ export class HashMap {
     }
 
     has(key) {
-        const hashKey = this.hash(key)
+        const hashKey = this.#hash(key)
+        this.#checkBounds(hashKey);
 
         for(let bucket of this.nodes[hashKey]) {
             if (bucket['key'] === key) {
@@ -65,11 +98,13 @@ export class HashMap {
     }
 
     remove(key) {
-        const hashKey = this.hash(key)
+        const hashKey = this.#hash(key)
+        this.#checkBounds(hashKey);
 
         for(let i = 0; i < this.nodes[hashKey].length; i++) {
             if (this.nodes[hashKey][i]['key'] === key) {
-                this.nodes[hashKey].shift(i)
+                this.nodes[hashKey].splice(i, 1)
+                this.size -= 1
                 return true
             }
         }
@@ -78,19 +113,13 @@ export class HashMap {
     }
 
     length() {
-        let cnt = 0
-
-        for(let bucket of this.nodes) {
-            for (let node of bucket) {
-                cnt += 1
-            }
-        }
-
-        return cnt
+        return this.size
     }
 
     clear() {
-        this.nodes = this.nodes = Array.from({ length: 16 }, () => [])
+        this.capacity = 16
+        this.size = 0
+        this.nodes = Array.from({ length: 16 }, () => [])
     }
 
 
